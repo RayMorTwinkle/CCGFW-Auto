@@ -25,6 +25,7 @@
         ENABLED: 'autoBuyEnabled',
         TARGET_PACKAGE: 'targetPackage',
         INTERVAL_MINUTES: 'intervalMinutes',
+        INTERVAL_UNIT: 'intervalUnit',
         LAST_RUN_TIME: 'lastRunTime',
         AUTO_OPEN: 'autoOpenEnabled',
         PENDING_AUTO_BUY: 'pendingAutoBuy',
@@ -39,8 +40,15 @@
         enabled: false,
         targetPackage: '公益 3',
         intervalMinutes: 60,
+        intervalUnit: 'minutes',
         autoOpen: true
     };
+
+    function getIntervalMs() {
+        const interval = getConfig(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes);
+        const unit = getConfig(STORAGE_KEYS.INTERVAL_UNIT, DEFAULT_CONFIG.intervalUnit);
+        return unit === 'hours' ? interval * 60 * 60 * 1000 : interval * 60 * 1000;
+    }
 
     const HEARTBEAT_INTERVAL_MS = 10 * 1000; // 心跳间隔：10秒
     const LOCK_TIMEOUT_MS = 30 * 1000; // 锁超时时间：30秒（3个心跳周期）
@@ -65,6 +73,7 @@
             GM_setValue(STORAGE_KEYS.ENABLED, DEFAULT_CONFIG.enabled);
             GM_setValue(STORAGE_KEYS.TARGET_PACKAGE, DEFAULT_CONFIG.targetPackage);
             GM_setValue(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes);
+            GM_setValue(STORAGE_KEYS.INTERVAL_UNIT, DEFAULT_CONFIG.intervalUnit);
             GM_setValue(STORAGE_KEYS.AUTO_OPEN, DEFAULT_CONFIG.autoOpen);
             GM_setValue(STORAGE_KEYS.PENDING_AUTO_BUY, false);
             GM_setValue(STORAGE_KEYS.IS_EXECUTING, false);
@@ -128,7 +137,7 @@
         const expireAt = GM_getValue(STORAGE_KEYS.LOCK_EXPIRE_AT, 0);
         const isExecuting = GM_getValue(STORAGE_KEYS.IS_EXECUTING, false);
         const lastSuccess = GM_getValue(STORAGE_KEYS.LAST_SUCCESS_TIME, 0);
-        const intervalMs = getConfig(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes) * 60 * 1000;
+        const intervalMs = getIntervalMs();
 
         if (isLockOwner()) {
             GM_setValue(STORAGE_KEYS.LOCK_EXPIRE_AT, now + LOCK_TIMEOUT_MS);
@@ -176,6 +185,7 @@
         const enabled = getConfig(STORAGE_KEYS.ENABLED, DEFAULT_CONFIG.enabled);
         const targetPackage = getConfig(STORAGE_KEYS.TARGET_PACKAGE, DEFAULT_CONFIG.targetPackage);
         const intervalMinutes = getConfig(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes);
+        const intervalUnit = getConfig(STORAGE_KEYS.INTERVAL_UNIT, DEFAULT_CONFIG.intervalUnit);
         const autoOpen = getConfig(STORAGE_KEYS.AUTO_OPEN, DEFAULT_CONFIG.autoOpen);
         const lastRunTime = getConfig(STORAGE_KEYS.LAST_RUN_TIME, null);
         const pendingAutoBuy = getConfig(STORAGE_KEYS.PENDING_AUTO_BUY, false);
@@ -186,17 +196,24 @@
         const isExecuting = GM_getValue(STORAGE_KEYS.IS_EXECUTING, false);
         const lastSuccess = GM_getValue(STORAGE_KEYS.LAST_SUCCESS_TIME, 0);
 
+        const unitText = intervalUnit === 'hours' ? '小时' : '分钟';
+
         let nextRunInfo = '未启用';
         if (enabled) {
-            const intervalMs = intervalMinutes * 60 * 1000;
+            const intervalMs = getIntervalMs();
             const elapsed = lastSuccess ? Date.now() - lastSuccess : intervalMs;
             const remaining = intervalMs - elapsed;
             if (remaining <= 0) {
                 nextRunInfo = '即将执行';
             } else {
-                const remMin = Math.floor(remaining / 60000);
+                const remHour = Math.floor(remaining / 3600000);
+                const remMin = Math.floor((remaining % 3600000) / 60000);
                 const remSec = Math.floor((remaining % 60000) / 1000);
-                nextRunInfo = `${remMin}分${remSec}秒后`;
+                if (remHour > 0) {
+                    nextRunInfo = `${remHour}小时${remMin}分${remSec}秒后`;
+                } else {
+                    nextRunInfo = `${remMin}分${remSec}秒后`;
+                }
             }
         }
 
@@ -209,7 +226,7 @@
             <div style="margin-bottom:3px;">上次成功执行: <span style="color:#FF9800;font-weight:bold;">${lastSuccess ? formatTimestamp(lastSuccess) : '从未'}</span></div>
             <div style="margin-bottom:3px;">自动购买: <span style="color:${enabled ? '#4CAF50' : '#f44336'};font-weight:bold;">${enabled ? '✅ 已启用' : '❌ 已禁用'}</span></div>
             <div style="margin-bottom:3px;">目标套餐: <span style="color:#1976D2;font-weight:bold;">${targetPackage}</span></div>
-            <div style="margin-bottom:3px;">定时间隔: <span style="color:#1976D2;font-weight:bold;">${intervalMinutes} 分钟</span></div>
+            <div style="margin-bottom:3px;">定时间隔: <span style="color:#1976D2;font-weight:bold;">${intervalMinutes} ${unitText}</span></div>
             <div style="margin-bottom:3px;">自动打开网站: <span style="color:${autoOpen ? '#4CAF50' : '#f44336'};font-weight:bold;">${autoOpen ? '✅ 已启用' : '❌ 已禁用'}</span></div>
             <div style="margin-bottom:3px;">上次执行时间: <span style="color:#FF9800;font-weight:bold;">${formatTimestamp(lastRunTime)}</span></div>
             <div style="margin-bottom:3px;">下次执行: <span style="color:#9C27B0;font-weight:bold;">${nextRunInfo}</span></div>
@@ -297,21 +314,39 @@
         const intervalDiv = document.createElement('div');
         intervalDiv.style.marginBottom = '15px';
         const intervalLabel = document.createElement('label');
-        intervalLabel.textContent = '定时运行间隔(分钟): ';
+        intervalLabel.textContent = '定时运行间隔: ';
         intervalLabel.style.marginRight = '10px';
         intervalDiv.appendChild(intervalLabel);
         const intervalInput = document.createElement('input');
-        intervalInput.type = 'number'; intervalInput.min = '1'; intervalInput.max = '1440';
+        intervalInput.type = 'number'; intervalInput.min = '1'; intervalInput.max = '168';
         intervalInput.value = getConfig(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes);
         intervalInput.style.cssText = 'width:80px;padding:5px;border-radius:4px;border:1px solid #ccc;';
         intervalInput.onchange = () => {
             const value = parseInt(intervalInput.value);
-            if (value >= 1 && value <= 1440) {
+            const maxValue = unitSelect.value === 'hours' ? 168 : 1440;
+            if (value >= 1 && value <= maxValue) {
                 setConfig(STORAGE_KEYS.INTERVAL_MINUTES, value);
                 refreshConfigDisplay();
             }
         };
         intervalDiv.appendChild(intervalInput);
+        const unitSelect = document.createElement('select');
+        unitSelect.style.cssText = 'padding:5px;border-radius:4px;border:1px solid #ccc;margin-left:5px;';
+        const unitOptions = [
+            { value: 'minutes', text: '分钟' },
+            { value: 'hours', text: '小时' }
+        ];
+        unitOptions.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.value; option.textContent = opt.text;
+            unitSelect.appendChild(option);
+        });
+        unitSelect.value = getConfig(STORAGE_KEYS.INTERVAL_UNIT, DEFAULT_CONFIG.intervalUnit);
+        unitSelect.onchange = () => {
+            setConfig(STORAGE_KEYS.INTERVAL_UNIT, unitSelect.value);
+            refreshConfigDisplay();
+        };
+        intervalDiv.appendChild(unitSelect);
         container.appendChild(intervalDiv);
 
         const autoOpenDiv = document.createElement('div');
@@ -402,7 +437,7 @@
         if (!getConfig(STORAGE_KEYS.ENABLED, DEFAULT_CONFIG.enabled)) return false;
         const lastSuccess = GM_getValue(STORAGE_KEYS.LAST_SUCCESS_TIME, 0);
         if (lastSuccess === 0) return true;
-        const intervalMs = getConfig(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes) * 60 * 1000;
+        const intervalMs = getIntervalMs();
         return (Date.now() - lastSuccess) >= intervalMs;
     }
 
@@ -436,7 +471,7 @@
 
         const now = Date.now();
         const lastSuccess = GM_getValue(STORAGE_KEYS.LAST_SUCCESS_TIME, 0);
-        const intervalMs = getConfig(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes) * 60 * 1000;
+        const intervalMs = getIntervalMs();
         if (lastSuccess !== 0 && now - lastSuccess < intervalMs / 2) {
             updateStatus('❌ 距离上次成功执行时间过短，跳过');
             return;
@@ -559,7 +594,9 @@
         if (!getConfig(STORAGE_KEYS.ENABLED, DEFAULT_CONFIG.enabled)) return;
         startHeartbeat();
         const intervalMinutes = getConfig(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes);
-        updateStatus(`定时运行已启动，间隔: ${intervalMinutes} 分钟`);
+        const intervalUnit = getConfig(STORAGE_KEYS.INTERVAL_UNIT, DEFAULT_CONFIG.intervalUnit);
+        const unitText = intervalUnit === 'hours' ? '小时' : '分钟';
+        updateStatus(`定时运行已启动，间隔: ${intervalMinutes} ${unitText}`);
     }
 
     function stopAutoRun() {
