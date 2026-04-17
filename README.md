@@ -28,7 +28,7 @@ CCGFW 自动购买脚本是一个基于 Tampermonkey 的油猴脚本，专为自
 1. 确保已安装 [Tampermonkey](https://www.tampermonkey.net/) 浏览器扩展
 2. 点击下方按钮直接安装脚本：
 
-   <a href="https://github.com/RayMorTwinkle/CCGFW-Auto/raw/refs/heads/main/CCGFW%20%E8%87%AA%E5%8A%A8%E8%B4%AD%E4%B9%B0%E8%84%9A%E6%9C%AC-4.0.0.user.js" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">🔗 一键安装脚本</a>
+   <a href="https://github.com/RayMorTwinkle/CCGFW-Auto/raw/refs/heads/main/CCGFW%E8%87%AA%E5%8A%A8%E8%B4%AD%E4%B9%B0%E8%84%9A%E6%9C%AC.user.js" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">🔗 一键安装脚本</a>
 
 3. Tampermonkey 会自动弹出安装确认窗口，点击「安装」即可
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CCGFW 自动购买脚本
 // @namespace    http://tampermonkey.net/
-// @version      4.0.0
+// @version      4.1.0
 // @description  自动购买 CCGFW 的公益套餐，支持定时运行、手动触发和多标签页防重复
 // @author       Ray
 // @match        https://ccgfw.top/user/shop
@@ -251,7 +251,7 @@
         `;
 
         const title = document.createElement('h3');
-        title.textContent = 'CCGFW 自动购买设置 v4.0';
+        title.textContent = 'CCGFW 自动购买设置 v4.1';
         title.style.cssText = 'margin-top: 0; color: #4CAF50;';
         container.appendChild(title);
 
@@ -317,21 +317,9 @@
         intervalLabel.textContent = '定时运行间隔: ';
         intervalLabel.style.marginRight = '10px';
         intervalDiv.appendChild(intervalLabel);
-        const intervalInput = document.createElement('input');
-        intervalInput.type = 'number'; intervalInput.min = '1'; intervalInput.max = '168';
-        intervalInput.value = getConfig(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes);
-        intervalInput.style.cssText = 'width:80px;padding:5px;border-radius:4px;border:1px solid #ccc;';
-        intervalInput.onchange = () => {
-            const value = parseInt(intervalInput.value);
-            const maxValue = unitSelect.value === 'hours' ? 168 : 1440;
-            if (value >= 1 && value <= maxValue) {
-                setConfig(STORAGE_KEYS.INTERVAL_MINUTES, value);
-                refreshConfigDisplay();
-            }
-        };
-        intervalDiv.appendChild(intervalInput);
+
         const unitSelect = document.createElement('select');
-        unitSelect.style.cssText = 'padding:5px;border-radius:4px;border:1px solid #ccc;margin-left:5px;';
+        unitSelect.style.cssText = 'padding:5px;border-radius:4px;border:1px solid #ccc;';
         const unitOptions = [
             { value: 'minutes', text: '分钟' },
             { value: 'hours', text: '小时' }
@@ -342,8 +330,29 @@
             unitSelect.appendChild(option);
         });
         unitSelect.value = getConfig(STORAGE_KEYS.INTERVAL_UNIT, DEFAULT_CONFIG.intervalUnit);
+
+        const intervalInput = document.createElement('input');
+        intervalInput.type = 'number'; intervalInput.min = '1'; intervalInput.max = '1440';
+        intervalInput.value = getConfig(STORAGE_KEYS.INTERVAL_MINUTES, DEFAULT_CONFIG.intervalMinutes);
+        intervalInput.style.cssText = 'width:80px;padding:5px;border-radius:4px;border:1px solid #ccc;margin-left:5px;';
+        intervalInput.onchange = () => {
+            const value = parseInt(intervalInput.value);
+            const maxValue = unitSelect.value === 'hours' ? 168 : 1440;
+            if (value >= 1 && value <= maxValue) {
+                setConfig(STORAGE_KEYS.INTERVAL_MINUTES, value);
+                refreshConfigDisplay();
+            }
+        };
+        intervalDiv.appendChild(intervalInput);
+
         unitSelect.onchange = () => {
             setConfig(STORAGE_KEYS.INTERVAL_UNIT, unitSelect.value);
+            const currentValue = parseInt(intervalInput.value);
+            const maxValue = unitSelect.value === 'hours' ? 168 : 1440;
+            if (currentValue > maxValue) {
+                intervalInput.value = maxValue;
+                setConfig(STORAGE_KEYS.INTERVAL_MINUTES, maxValue);
+            }
             refreshConfigDisplay();
         };
         intervalDiv.appendChild(unitSelect);
