@@ -35,7 +35,7 @@ CCGFW 自动购买脚本是一个基于 Tampermonkey 的油猴脚本，专为自
 ### 方法二：手动安装
 
 1. 确保已安装 [Tampermonkey](https://www.tampermonkey.net/) 浏览器扩展
-2. 下载脚本文件：[CCGFW 自动购买脚本-4.0.0.user.js](https://github.com/RayMorTwinkle/CCGFW-Auto/raw/refs/heads/main/CCGFW%20%E8%87%AA%E5%8A%A8%E8%B4%AD%E4%B9%B0%E8%84%9A%E6%9C%AC-4.0.0.user.js)
+2. 下载脚本文件：[CCGFW自动购买脚本.user.js](https://github.com/RayMorTwinkle/CCGFW-Auto/raw/refs/heads/main/CCGFW%E8%87%AA%E5%8A%A8%E8%B4%AD%E4%B9%B0%E8%84%9A%E6%9C%AC.user.js)
 3. 打开 Tampermonkey 管理面板
 4. 点击「实用工具」选项卡
 5. 在「从文件安装」部分，点击「选择文件」并选择下载的脚本文件
@@ -55,7 +55,7 @@ CCGFW 自动购买脚本是一个基于 Tampermonkey 的油猴脚本，专为自
 
 - **启用自动购买**：开启或关闭自动购买功能
 - **目标套餐**：选择要购买的套餐，默认为「公益 3」
-- **定时运行间隔**：设置自动运行的时间间隔（1-1440分钟）
+- **定时运行间隔**：设置自动运行的时间间隔（分钟：1-1440，小时：1-168）
 - **自动打开网站**：设置是否自动打开 CCGFW 网站
 
 ### 手动执行
@@ -131,6 +131,12 @@ CCGFW 自动购买脚本是一个基于 Tampermonkey 的油猴脚本，专为自
 
 ## 更新日志
 
+### v4.1.0
+- 添加时间间隔单位选择功能（分钟/小时）
+- 支持最长168小时（7天）的定时间隔
+- 优化UI布局，单位选择器位置调整
+- 切换单位时自动调整超出范围的值
+
 ### v4.0.0
 - 全新的分布式锁机制，支持多标签页防重复
 - 增加心跳检测，确保主实例正常运行
@@ -143,7 +149,7 @@ CCGFW 自动购买脚本是一个基于 Tampermonkey 的油猴脚本，专为自
 ## 联系方式
 
 - 作者：Ray
-- 版本：4.0.0
+- 版本：4.1.0
 - 最后更新：2026-04-17
 
 ## 免责声明
