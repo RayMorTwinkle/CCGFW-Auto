@@ -7,7 +7,7 @@
 - 北京时间每天 00:00 和 12:00 自动执行
 - 执行顺序：先购买，再签到
 - 状态页展示上次运行、上次购买、上次签到
-- 展示上一次签到成功时保存的流量信息
+- 展示上一次签到成功时保存的剩余流量、总流量、今日已用和已用流量
 - 页面按钮可手动执行完整流程、只购买、只签到
 - 部署脚本自动创建/复用 KV namespace：`ccgfw-auto-buy-status`
 - 不使用 Wrangler，直接通过 Cloudflare REST API 部署
@@ -82,6 +82,12 @@ GitHub 仓库 -> Settings -> Secrets and variables -> Actions -> New repository 
 状态页：
 
 ```txt
+https://ccg.raymondreal.dpdns.org/
+```
+
+Workers.dev 地址：
+
+```txt
 https://ccgfw-auto-buy.cyb2831173936.workers.dev/
 ```
 
@@ -147,6 +153,10 @@ API Token 权限不够。现在脚本会创建 KV，所以 token 至少需要 Wo
 ### 没有流量数据
 
 页面只展示“上一次签到成功时保存的流量”。如果最近一次签到返回的是“已签到”，接口不会返回 `trafficInfo`，页面就会继续保留旧值或显示空。
+
+### 自定义域名是否影响部署
+
+不影响。`ccg.raymondreal.dpdns.org` 是 Cloudflare Worker 的域/路由绑定，不参与 esbuild 构建，也不影响 `scripts/deploy-api.sh` 上传代码。只有想让脚本自动创建自定义域名绑定时才需要改部署脚本。
 
 ## 安全提示
 

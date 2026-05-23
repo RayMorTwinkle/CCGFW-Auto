@@ -43,6 +43,10 @@ export function renderStatusPage() {
         <div class="label">今日已用</div>
         <div id="todayUsed" class="value">--</div>
       </div>
+      <div class="card">
+        <div class="label">已用流量</div>
+        <div id="lastUsed" class="value">--</div>
+      </div>
     </section>
 
     <section class="panel" style="margin-top:14px;">
@@ -110,6 +114,7 @@ export function renderStatusPage() {
       $("unused").textContent = info.unUsedTraffic || "--"
       $("traffic").textContent = snap.traffic || "--"
       $("todayUsed").textContent = info.todayUsedTraffic || "--"
+      $("lastUsed").textContent = info.lastUsedTraffic || "--"
 
       const lastBuy = status.lastBuy?.message || "暂无"
       const lastCheckin = status.lastCheckin?.message || "暂无"
