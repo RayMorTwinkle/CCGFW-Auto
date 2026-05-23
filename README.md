@@ -11,6 +11,29 @@ CCGFW 自动购买脚本是一个基于 Tampermonkey 的油猴脚本，专为自
 - **自动打开网站**：可配置是否自动打开 CCGFW 网站
 - **详细状态监控**：实时显示脚本运行状态、配置信息和执行历史
 
+## Cloudflare Worker 版本
+
+仓库内另有一个 Cloudflare Worker 自动任务版本：
+
+```txt
+ccgfw-worker/
+```
+
+它通过 Cloudflare Workers 定时执行“先购买、再签到”，并用 Workers KV 保存上次运行结果和上一次签到成功时的流量信息。状态页地址：
+
+```txt
+https://ccgfw-auto-buy.cyb2831173936.workers.dev/
+```
+
+Worker 版本支持 GitHub Actions 自动部署。配置 GitHub 仓库 Secrets：
+
+```txt
+CLOUDFLARE_API_TOKEN
+CCGFW_COOKIE
+```
+
+之后每次 push 到 `main` 且改动 `ccgfw-worker/**` 时，会自动编译并部署到 Cloudflare。详细说明见 [ccgfw-worker/README.md](ccgfw-worker/README.md)。
+
 ## 脚本特点
 
 - **智能主备机制**：采用心跳检测和分布式锁，确保只有一个标签页作为主实例运行

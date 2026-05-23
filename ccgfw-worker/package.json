@@ -1,0 +1,14 @@
+{
+  "name": "ccgfw-worker",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.mjs --bundle --format=esm --target=es2022 --outfile=dist/worker.mjs",
+    "check": "node --check dist/worker.mjs",
+    "deploy": "bash scripts/deploy-api.sh"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.0"
+  }
+}

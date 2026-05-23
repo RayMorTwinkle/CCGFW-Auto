@@ -1,0 +1,33 @@
+name: Deploy CCGFW Worker
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deploy-ccgfw-worker.yml"
+      - "ccgfw-worker/**"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ccgfw-worker/package-lock.json
+
+      - name: Deploy Worker
+        working-directory: ccgfw-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CCGFW_COOKIE: ${{ secrets.CCGFW_COOKIE }}
+        run: ./scripts/deploy-api.sh
