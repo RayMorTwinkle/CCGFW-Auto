@@ -6,16 +6,16 @@ const IDEMPOTENT_MESSAGES = [
   "已经购买",
 ]
 
-export async function buy(env) {
-  const baseUrl = normalizeBaseUrl(env.CCGFW_BASE_URL || "https://ccgfw.top")
-  const cookie = getCookie(env)
+export async function buy(env, config = {}) {
+  const baseUrl = normalizeBaseUrl(config.baseUrl || env.CCGFW_BASE_URL || "https://www.okgg.top")
+  const cookie = config.cookie || getCookie(env)
   if (!cookie) return missingCookieResult()
 
   const body = new URLSearchParams({
-    coupon: env.CCGFW_COUPON || "",
-    shop: env.CCGFW_SHOP_ID || "8",
-    autorenew: env.CCGFW_AUTORENEW || "1",
-    disableothers: env.CCGFW_DISABLE_OTHERS || "1",
+    coupon: config.coupon ?? env.CCGFW_COUPON ?? "",
+    shop: config.shop || env.CCGFW_SHOP_ID || "8",
+    autorenew: config.autorenew || env.CCGFW_AUTORENEW || "1",
+    disableothers: config.disableothers || env.CCGFW_DISABLE_OTHERS || "1",
   })
 
   const response = await fetch(`${baseUrl}/user/buy`, {
@@ -35,6 +35,8 @@ export async function buy(env) {
     idempotent,
     status: response.status,
     message: parsed.message,
+    baseUrl,
+    shop: body.get("shop"),
     response: parsed.payload || parsed.text,
   }
 }

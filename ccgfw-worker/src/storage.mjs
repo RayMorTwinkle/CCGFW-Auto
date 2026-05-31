@@ -1,13 +1,16 @@
 import { parseJson } from "./tasks/common.mjs"
+import { buildConfigResponse } from "./config.mjs"
 
 const STATUS_KEY = "status:v1"
 
 export async function buildStatusResponse(env) {
   const status = await readStatus(env)
+  const config = await buildConfigResponse(env)
   return {
     ok: true,
     storage: Boolean(env.STATUS_KV),
     schedule: "北京时间每天 00:00 和 12:00",
+    config: config.config,
     status,
   }
 }
@@ -54,6 +57,7 @@ function compactResult(result) {
       ok: result.ok,
       success: result.success,
       order: result.order,
+      config: result.config,
       buy: compactResult(result.buy),
       checkin: compactResult(result.checkin),
     }
@@ -66,6 +70,8 @@ function compactResult(result) {
     idempotent: result.idempotent,
     status: result.status,
     message: result.message,
+    baseUrl: result.baseUrl,
+    shop: result.shop,
     traffic: result.traffic,
     trafficInfo: result.trafficInfo,
   }

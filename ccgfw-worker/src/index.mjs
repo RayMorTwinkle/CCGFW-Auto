@@ -1,4 +1,5 @@
 import { html, json } from "./http.mjs"
+import { activateProfile, buildConfigResponse, saveCurlConfig } from "./config.mjs"
 import { renderStatusPage } from "./routes/page.mjs"
 import { buildStatusResponse, saveStatus } from "./storage.mjs"
 import { routeAction, runAction, runAll } from "./tasks/index.mjs"
@@ -17,6 +18,29 @@ export default {
 
     if (request.method === "GET" && url.pathname === "/api/status") {
       return json(await buildStatusResponse(env))
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/config") {
+      return json(await buildConfigResponse(env))
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/curl") {
+      try {
+        const curlText = await request.text()
+        return json(await saveCurlConfig(env, curlText))
+      } catch (error) {
+        return json({ ok: false, message: error.message || String(error) }, 400)
+      }
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/profiles/activate") {
+      try {
+        const body = await request.json()
+        const result = await activateProfile(env, body.id)
+        return json(result, result.ok ? 200 : 404)
+      } catch (error) {
+        return json({ ok: false, message: error.message || String(error) }, 400)
+      }
     }
 
     const action = routeAction(url.pathname)

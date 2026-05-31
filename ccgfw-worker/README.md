@@ -9,6 +9,8 @@
 - 状态页展示上次运行、上次购买、上次签到
 - 展示上一次签到成功时保存的剩余流量、总流量、今日已用和已用流量
 - 页面按钮可手动执行完整流程、只购买、只签到
+- 页面可粘贴浏览器复制的 curl，自动解析站点、Cookie 和购买参数
+- 最近 3 组 curl 配置会保存在 KV，页面可一键切换
 - 部署脚本自动创建/复用 KV namespace：`ccgfw-auto-buy-status`
 - 不使用 Wrangler，直接通过 Cloudflare REST API 部署
 
@@ -19,6 +21,7 @@ src/index.mjs          Worker 入口和路由
 src/tasks/buy.mjs      购买任务
 src/tasks/checkin.mjs  签到任务
 src/storage.mjs        KV 状态读写
+src/config.mjs         curl 解析和运行配置管理
 src/routes/page.mjs    状态页 HTML
 dist/worker.mjs        esbuild 打包产物
 scripts/deploy-api.sh  API 部署脚本
@@ -47,6 +50,7 @@ cd /Users/ray/Documents/Fork/LITTLEPRO/CCGFW自动购买油猴脚本/ccgfw-worke
 - 创建/复用 KV namespace
 - 上传 Worker
 - 上传 `CCGFW_COOKIE`
+- 默认环境站点为 `https://www.okgg.top`
 - 绑定 KV：`STATUS_KV`
 - 设置 cron：`0 4,16 * * *`
 
@@ -104,6 +108,23 @@ curl -X POST 'https://ccgfw-auto-buy.cyb2831173936.workers.dev/run'
 curl -X POST 'https://ccgfw-auto-buy.cyb2831173936.workers.dev/buy'
 curl -X POST 'https://ccgfw-auto-buy.cyb2831173936.workers.dev/checkin'
 ```
+
+## 更新站点和 Cookie
+
+如果站点域名、Cookie 或购买参数变化，打开状态页，把浏览器复制出来的完整 curl 粘贴到“粘贴新的 curl”区域，点击“解析并保存”。
+
+Worker 会自动解析：
+
+```txt
+URL / origin
+Cookie
+shop
+coupon
+autorenew
+disableothers
+```
+
+保存后会立即成为活动配置。最近 3 组配置会保存在 KV，可在页面的“当前配置”里切换。
 
 ## 定时
 

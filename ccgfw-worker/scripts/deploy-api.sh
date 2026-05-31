@@ -153,7 +153,7 @@ cat > "$METADATA" <<JSON
   "compatibility_date": "2026-05-22",
   "compatibility_flags": ["global_fetch_strictly_public"],
   "bindings": [
-    { "type": "plain_text", "name": "CCGFW_BASE_URL", "text": "https://ccgfw.top" },
+    { "type": "plain_text", "name": "CCGFW_BASE_URL", "text": "https://www.okgg.top" },
     { "type": "plain_text", "name": "CCGFW_SHOP_ID", "text": "8" },
     { "type": "plain_text", "name": "CCGFW_COUPON", "text": "" },
     { "type": "plain_text", "name": "CCGFW_AUTORENEW", "text": "1" },
